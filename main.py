@@ -21,7 +21,8 @@ app = flask.Flask(__name__)
 
 @app.route('/movie/<title>', methods = ['GET', 'POST'])
 
-def task_1(title):
+#Step 1
+def get_movies_by_title(title):
     sql = f'''select title, country, release_year, listed_in as genre, description
           from netflix 
           where title = "{title}" 
@@ -38,15 +39,18 @@ def task_1(title):
 
 @app.get('/movie/<int:start_year>/to/<int:end_year>')
 
-def task_2(start_year, end_year):
+#task_2
+def get_movie_by_period(start_year, end_year):
     sql = f'''select title, release_year
               from netflix 
               where release_year between {start_year} and {end_year}
               limit 100 '''
     return flask.jsonify(run_sql(sql))
 
+
+#Step_3
 @app.get('/rating/<rating>')
-def task_3(rating):
+def get_by_rating(rating):
     my_dict = {
         "children":("G", "G"),
         "family": ("G", "PG", "PG-13"),
@@ -60,16 +64,19 @@ def task_3(rating):
                    '''
     return flask.jsonify(run_sql(sql))
 
+#Step_4
 @app.get('/genre/<genre>')
-def task_4(genre):
+def get_by_genre(genre):
     sql = f'''select title, rating, description
                       from netflix 
                       where listed_in like '%{genre.title()}%' 
+                      order by release_year desc
                       limit 10
            '''
     return flask.jsonify(run_sql(sql))
 
-def task_5(actor_1 = 'Rose McIver', actor_2 = 'Ben Lamb'):
+#Step 5
+def get_by_cast(actor_1 = 'Rose McIver', actor_2 = 'Ben Lamb'):
     sql = f'''select "cast"
                   from netflix 
                   where "cast" like '%{actor_1}%' and "cast" like '%{actor_2}%'
@@ -97,20 +104,20 @@ def task_5(actor_1 = 'Rose McIver', actor_2 = 'Ben Lamb'):
 
     return result
 
-def taks_6(types = 'TV Show', release_year = 2021, genre = 'TV'):
+def get_by_type_and_year(types = 'TV Show', release_year = 2021, genre = 'TV'):
     sql = f'''select *
           from netflix 
-          where type  = {types}
+          where type  = '{types}'
           and release_year = '{release_year}'
           and listed_in like '%{genre}%' 
                    '''
-    # return flask.jsonify(run_sql(sql))
-    return json.dumps(run_sql(sql), indent = 4, ensure_ascii = False)
+    return flask.jsonify(run_sql(sql))
+    # return json.dumps(run_sql(sql), indent = 4, ensure_ascii = False)
 
 
 if __name__ == '__main__':
-    #app.run(debug = True)
-    print(taks_6())
+    app.run(debug = True)
+
     #при debug = True идет постоянная перезагрузка main
 
 #тестировать можно через curl - на windows его нет, надо устанавливать (гугл - установить curl), mcOs, Linux - пол умолчанию
